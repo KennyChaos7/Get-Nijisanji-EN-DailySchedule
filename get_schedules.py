@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import requests
-import schedule
-import time
+# import schedule
+# import time
 import os
 import json
-import math
+# import math
 import datetime
 # import cv2
 # import numpy as np
@@ -68,10 +68,10 @@ def get():
     else:
         print(response.text)        
 
-def CreatePic(margin=15,backgroundRGB=[255,255,255],fontType=_fontType,fontRGB=[0,0,0]):
+def saveToJPG(margin = 15, backgroundRGB = [255,255,255], fontType = _fontType, fontRGB = [0,0,0]):
 
     textList, maxSingleText, allText = decodeText()
-    print(maxSingleText)
+    # print(maxSingleText)
     size=tuple([1080, len(_liverList) * 85])
     backgroundRGB=tuple(backgroundRGB)
     fontRGB=tuple(fontRGB)
@@ -82,8 +82,8 @@ def CreatePic(margin=15,backgroundRGB=[255,255,255],fontType=_fontType,fontRGB=[
     # 计算字节数，GBK编码下汉字双字，英文单字。都转为双字计算
     size=len(maxSingleText.encode('utf-8'))/3
     # 计算字体大小，每两个字号按字节长度翻倍。
-    fontSize=30#math.ceil((iwidth-(margin*2))/size)
-    print(fontSize)
+    fontSize = 30#math.ceil((iwidth-(margin*2))/size)
+    # print(fontSize)
     
     font = ImageFont.truetype(fontType, fontSize) # 设置字体及字号
     draw = ImageDraw.Draw(image)
@@ -122,9 +122,8 @@ def takeSecond(elem):
     return elem.scheduleTime
 
 get()
-CreatePic()
+saveToJPG()
 # schedule.every(12).hours.do(get_data_task)
-# os.popen(openServer)
 # print("start schedule task ....")
 # while True:
 #     schedule.run_pending()  # 运行所有可以运行的任务
