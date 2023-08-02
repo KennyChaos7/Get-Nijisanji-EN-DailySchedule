@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# TODO
-# 修改时区
-
 import requests
 # import schedule
 # import time
@@ -40,33 +37,33 @@ reqHeaders = {
     }
 
 def get():
-    response = requests.get(url=reqUrl, params=reqParams, headers=reqHeaders)
+    response = requests.get(url = reqUrl, params = reqParams, headers = reqHeaders)
     if(response.status_code == 200):
         _array = json.loads(response.text)
         for _obj in _array: 
             _headIconJson = json.loads(json.dumps(_obj['StreamerThumbnails']))
             _scheduleArray = json.loads(json.dumps(_obj['Schedule']))
-            _schedule = _scheduleArray[0]
-            _scheduleThumbnails = json.loads(json.dumps(_schedule['ThumbnailDetails']))
-            _headMedium = _headIconJson.get("Medium")
-            _streamMediumThumbnail = json.loads(json.dumps(_scheduleThumbnails['Medium']))
-            
-            scheduleDT = datetime.datetime.strptime(str(_schedule['ScheduledStartTime']),'%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d')
-            nowDT = datetime.datetime.today().strftime('%Y-%m-%d') 
-            if(scheduleDT == nowDT):
-                _liver = Liver(
-                    name = str(_obj['StreamerName']).replace('【NIJISANJI EN】',''),
-                    headIcon = _headMedium['Url'],
-                    title = _schedule['Title'],
-                    scheduleTime = str(datetime.datetime.strptime(str(_schedule['ScheduledStartTime']),'%Y-%m-%dT%H:%M:%S.%fZ').strftime('%H:%M')),
-                    streamThumbnail = _streamMediumThumbnail['Url']
-                )
-                # print(_liver.__dict__)
-                global _liverList
-                _liverList.append(_liver)
-                
-                global _liveListTextSize
-                _liveListTextSize = _liveListTextSize + 4 + len(_liver.name) + 8 + len(_liver.heabIcon) + 5 + len(_liver.title) + 12 + len(_liver.scheduleTime) + 15 + len(_liver.streamThumbnail)
+            for _schedule in _scheduleArray:
+                _scheduleThumbnails = json.loads(json.dumps(_schedule['ThumbnailDetails']))
+                _headMedium = _headIconJson.get("Medium")
+                _streamMediumThumbnail = json.loads(json.dumps(_scheduleThumbnails['Medium']))
+                _schedule['ScheduledStartTime'] = datetime.datetime.strptime(str(_schedule['ScheduledStartTime']),'%Y-%m-%dT%H:%M:%S.%fZ') + datetime.timedelta(hours=8)                
+                scheduleDT = _schedule['ScheduledStartTime'].strftime('%Y-%m-%d')                
+                nowDT = datetime.datetime.today().strftime('%Y-%m-%d') 
+                if(scheduleDT == nowDT):
+                    _liver = Liver(
+                        name = str(_obj['StreamerName']).replace('【NIJISANJI EN】',''),
+                        headIcon = _headMedium['Url'],
+                        title = _schedule['Title'],
+                        scheduleTime = str(_schedule['ScheduledStartTime'].strftime('%H:%M')),
+                        streamThumbnail = _streamMediumThumbnail['Url']
+                    )
+                    # print(_liver.__dict__)
+                    global _liverList
+                    _liverList.append(_liver)
+                    
+                    global _liveListTextSize
+                    _liveListTextSize = _liveListTextSize + 4 + len(_liver.name) + 8 + len(_liver.heabIcon) + 5 + len(_liver.title) + 12 + len(_liver.scheduleTime) + 15 + len(_liver.streamThumbnail)
     else:
         print(response.text)        
 
@@ -97,7 +94,7 @@ def saveToJPG(margin = 15, backgroundRGB = [255,255,255], fontType = _fontType, 
     # fonty = (iheight - fheight - oheight) / 4
     fonty = fontSize + margin * 2
 
-    draw.text((iwidth / 3, margin), str(datetime.datetime.today().strftime('%Y - %m - %d')), fontRGB, font)
+    draw.text((iwidth / 3, margin), str(datetime.datetime.today().strftime('%Y - %m - %d')) + " - 今天直播人数 : " + str(len(_liverList)), fontRGB, font)
     for tmpText in textList:
         draw.text((fontx, fonty), tmpText, fontRGB, font)
         fonty += fontSize * 2 + margin
