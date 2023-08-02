@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# TODO
+# 修改时区
 
 import requests
 # import schedule
@@ -72,9 +74,9 @@ def saveToJPG(margin = 15, backgroundRGB = [255,255,255], fontType = _fontType, 
 
     textList, maxSingleText, allText = decodeText()
     # print(maxSingleText)
-    size=tuple([1080, len(_liverList) * 85])
-    backgroundRGB=tuple(backgroundRGB)
-    fontRGB=tuple(fontRGB)
+    size = tuple([1080, len(_liverList) * 85])
+    backgroundRGB = tuple(backgroundRGB)
+    fontRGB = tuple(fontRGB)
 
     image = Image.new('RGB', size, backgroundRGB) # 设置画布大小及背景色
     iwidth, iheight = image.size # 获取画布高宽
@@ -102,7 +104,6 @@ def saveToJPG(margin = 15, backgroundRGB = [255,255,255], fontType = _fontType, 
         # print(tmpText)
         
     image.save(imgFileName) # 保存图片        
-
 
 def decodeText():
     textList = []
