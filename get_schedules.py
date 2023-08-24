@@ -44,26 +44,27 @@ def get():
             _headIconJson = json.loads(json.dumps(_obj['StreamerThumbnails']))
             _scheduleArray = json.loads(json.dumps(_obj['Schedule']))
             for _schedule in _scheduleArray:
-                _scheduleThumbnails = json.loads(json.dumps(_schedule['ThumbnailDetails']))
-                _headMedium = _headIconJson.get("Medium")
-                _streamMediumThumbnail = json.loads(json.dumps(_scheduleThumbnails['Medium']))
-                _schedule['ScheduledStartTime'] = datetime.datetime.strptime(str(_schedule['ScheduledStartTime']),'%Y-%m-%dT%H:%M:%S.%fZ') + datetime.timedelta(hours=8)                
-                scheduleDT = _schedule['ScheduledStartTime'].strftime('%Y-%m-%d')                
-                nowDT = datetime.datetime.today().strftime('%Y-%m-%d') 
-                if(scheduleDT == nowDT):
-                    _liver = Liver(
-                        name = str(_obj['StreamerName']).replace('【NIJISANJI EN】',''),
-                        headIcon = _headMedium['Url'],
-                        title = _schedule['Title'],
-                        scheduleTime = str(_schedule['ScheduledStartTime'].strftime('%H:%M')),
-                        streamThumbnail = _streamMediumThumbnail['Url']
-                    )
-                    # print(_liver.__dict__)
-                    global _liverList
-                    _liverList.append(_liver)
-                    
-                    global _liveListTextSize
-                    _liveListTextSize = _liveListTextSize + 4 + len(_liver.name) + 8 + len(_liver.heabIcon) + 5 + len(_liver.title) + 12 + len(_liver.scheduleTime) + 15 + len(_liver.streamThumbnail)
+                if 'ScheduledStartTime' in _schedule:
+                    _scheduleThumbnails = json.loads(json.dumps(_schedule['ThumbnailDetails']))
+                    _headMedium = _headIconJson.get("Medium")
+                    _streamMediumThumbnail = json.loads(json.dumps(_scheduleThumbnails['Medium']))
+                    _schedule['ScheduledStartTime'] = datetime.datetime.strptime(str(_schedule['ScheduledStartTime']),'%Y-%m-%dT%H:%M:%S.%fZ') + datetime.timedelta(hours=8)                
+                    scheduleDT = _schedule['ScheduledStartTime'].strftime('%Y-%m-%d')                
+                    nowDT = datetime.datetime.today().strftime('%Y-%m-%d') 
+                    if(scheduleDT == nowDT):
+                        _liver = Liver(
+                            name = str(_obj['StreamerName']).replace('【NIJISANJI EN】',''),
+                            headIcon = _headMedium['Url'],
+                            title = _schedule['Title'],
+                            scheduleTime = str(_schedule['ScheduledStartTime'].strftime('%H:%M')),
+                            streamThumbnail = _streamMediumThumbnail['Url']
+                        )
+                        # print(_liver.__dict__)
+                        global _liverList
+                        _liverList.append(_liver)
+                        
+                        global _liveListTextSize
+                        _liveListTextSize = _liveListTextSize + 4 + len(_liver.name) + 8 + len(_liver.heabIcon) + 5 + len(_liver.title) + 12 + len(_liver.scheduleTime) + 15 + len(_liver.streamThumbnail)
     else:
         print(response.text)        
 
