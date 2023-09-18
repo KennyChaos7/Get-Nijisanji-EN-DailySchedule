@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import requests
-# import schedule
-# import time
+import schedule
+import time
 import os
 import json
 # import math
@@ -12,12 +12,13 @@ import datetime
 from PIL import Image, ImageFont, ImageDraw
 
 class Liver:
-    def __init__(self, name, headIcon, title, scheduleTime, streamThumbnail):
+    def __init__(self, name, headIcon, title, scheduleTime, streamThumbnail, streamUrl):
         self.name = name
         self.heabIcon = headIcon
         self.title = title
         self.scheduleTime = scheduleTime
         self.streamThumbnail = streamThumbnail
+        self.streamUrl = streamUrl
 
 
 path = os.getcwd()
@@ -43,8 +44,10 @@ def get():
         for _obj in _array: 
             _headIconJson = json.loads(json.dumps(_obj['StreamerThumbnails']))
             _scheduleArray = json.loads(json.dumps(_obj['Schedule']))
+            _channelUrl = json.loads(json.dumps(_obj['ChannelUrl']))
             for _schedule in _scheduleArray:
                 if 'ScheduledStartTime' in _schedule:
+                    _videoId = json.loads(json.dumps(_schedule['VideoId']))
                     _scheduleThumbnails = json.loads(json.dumps(_schedule['ThumbnailDetails']))
                     _headMedium = _headIconJson.get("Medium")
                     _streamMediumThumbnail = json.loads(json.dumps(_scheduleThumbnails['Medium']))
@@ -57,7 +60,8 @@ def get():
                             headIcon = _headMedium['Url'],
                             title = _schedule['Title'],
                             scheduleTime = str(_schedule['ScheduledStartTime'].strftime('%H:%M')),
-                            streamThumbnail = _streamMediumThumbnail['Url']
+                            streamThumbnail = _streamMediumThumbnail['Url'],
+                            streamUrl = "https://youtube.com/watch?v=" + _videoId #_channelUrl + _videoId
                         )
                         # print(_liver.__dict__)
                         global _liverList
@@ -65,6 +69,9 @@ def get():
                         
                         global _liveListTextSize
                         _liveListTextSize = _liveListTextSize + 4 + len(_liver.name) + 8 + len(_liver.heabIcon) + 5 + len(_liver.title) + 12 + len(_liver.scheduleTime) + 15 + len(_liver.streamThumbnail)
+                                            
+                    _liverList.sort(key=takeSecond)
+
     else:
         print(response.text)        
 
@@ -107,7 +114,6 @@ def decodeText():
     textList = []
     maxSingleText = ""
     allText = ""
-    _liverList.sort(key=takeSecond)
     for _liver in _liverList:
         # print(_liver.__dict__)
         tmpText = _liver.scheduleTime + " " + _liver.name + "\n      " + _liver.title + "\n"
@@ -120,11 +126,34 @@ def decodeText():
 def takeSecond(elem):
     return elem.scheduleTime
 
-get()
-saveToJPG()
-# schedule.every(12).hours.do(get_data_task)
-# print("start schedule task ....")
-# while True:
-#     schedule.run_pending()  # 运行所有可以运行的任务
-#     time.sleep(1)
+def createHtml():
+    h1 = str(datetime.datetime.today().strftime('%Y - %m - %d')) + " - 今天直播人数 : " + str(len(_liverList))
+    html = """
+    <h1 align="center">%s</h1>
+    """%(h1)
+    f = open('nijisan_en_daliy.html','w')
+    a_tag_list = []
+    for _liver in _liverList:
+        a_tag = """
+        <h3 align="center">%s</h3>
+        <h5 align="center">%s  <a href="%s">LINK</a>
+        <br/>
+        <img src="%s"/>
+        </h5>
+        """%(_liver.scheduleTime + "   " + _liver.name, _liver.title, _liver.streamUrl, _liver.streamThumbnail)
+        html+=a_tag
+    f.write(html)
+    f.close()
+
+def main():
+    get()
+    saveToJPG()
+    createHtml()
+
+if __name__ == '__main__': 
+    schedule.every(12).hours.do(main)
+    print("start schedule task ....")
+    while True:
+        schedule.run_pending()  # 运行所有可以运行的任务
+        time.sleep(1)
 
