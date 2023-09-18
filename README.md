@@ -5,4 +5,4 @@
 ### 图片生成效果
 ![Daily Schedule](./schedules.jpg)
 ### 网页生成效果
-[网页，具体可看nijisan_en_daliy.html文件](https://kennychaos7.github.io/Get-Nijisanji-EN-DailySchedule/nijisan_en_daliy.html)
+[网页，具体可看nijisan_en_daily.html文件](https://kennychaos7.github.io/Get-Nijisanji-EN-DailySchedule/nijisan_en_daily.html)

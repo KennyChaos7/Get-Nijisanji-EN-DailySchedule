@@ -23,7 +23,7 @@ class Liver:
 
 path = os.getcwd()
 imgFileName = path + "/schedules.jpg"
-_fontType = './Silver.ttf'
+_fontType = './silver.ttf'
 _liverList = []
 _liveListTextSize = 0
 reqUrl = 'https://dhiljqbdkw8vk.cloudfront.net/schedules'
@@ -69,7 +69,7 @@ def get():
                         
                         global _liveListTextSize
                         _liveListTextSize = _liveListTextSize + 4 + len(_liver.name) + 8 + len(_liver.heabIcon) + 5 + len(_liver.title) + 12 + len(_liver.scheduleTime) + 15 + len(_liver.streamThumbnail)
-                                            
+
                     _liverList.sort(key=takeSecond)
 
     else:
@@ -114,6 +114,7 @@ def decodeText():
     textList = []
     maxSingleText = ""
     allText = ""
+    _liverList.sort(key=takeSecond)
     for _liver in _liverList:
         # print(_liver.__dict__)
         tmpText = _liver.scheduleTime + " " + _liver.name + "\n      " + _liver.title + "\n"
@@ -131,7 +132,7 @@ def createHtml():
     html = """
     <h1 align="center">%s</h1>
     """%(h1)
-    f = open('nijisan_en_daliy.html','w')
+    f = open('nijisan_en_daily.html','w')
     a_tag_list = []
     for _liver in _liverList:
         a_tag = """
@@ -150,10 +151,11 @@ def main():
     saveToJPG()
     createHtml()
 
-if __name__ == '__main__': 
-    schedule.every(12).hours.do(main)
-    print("start schedule task ....")
-    while True:
-        schedule.run_pending()  # 运行所有可以运行的任务
-        time.sleep(1)
+if __name__ == '__main__':
+    main()
+#     schedule.every(12).hours.do(main)
+#     print("start schedule task ....")
+#     while True:
+#         schedule.run_pending()  # 运行所有可以运行的任务
+#         time.sleep(1)
 
