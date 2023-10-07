@@ -49,18 +49,16 @@ def get():
                 if 'ScheduledStartTime' in _schedule:
                     _videoId = json.loads(json.dumps(_schedule['VideoId']))
                     _scheduleThumbnails = json.loads(json.dumps(_schedule['ThumbnailDetails']))
-                    _headMedium = _headIconJson.get("Medium")
-                    _streamMediumThumbnail = json.loads(json.dumps(_scheduleThumbnails['Medium']))
-                    _schedule['ScheduledStartTime'] = datetime.datetime.strptime(str(_schedule['ScheduledStartTime']),'%Y-%m-%dT%H:%M:%S.%fZ') + datetime.timedelta(hours=8)                
+                    _schedule['ScheduledStartTime'] = datetime.datetime.strptime(str(_schedule['ScheduledStartTime']),'%Y-%m-%dT%H:%M:%S.%fZ') + datetime.timedelta(hours=8)
                     scheduleDT = _schedule['ScheduledStartTime'].strftime('%Y-%m-%d')                
                     nowDT = datetime.datetime.today().strftime('%Y-%m-%d') 
                     if(scheduleDT == nowDT):
                         _liver = Liver(
                             name = str(_obj['StreamerName']).replace('【NIJISANJI EN】',''),
-                            headIcon = _headMedium['Url'],
+                            headIcon = _headIconJson['Url'],
                             title = _schedule['Title'],
                             scheduleTime = str(_schedule['ScheduledStartTime'].strftime('%H:%M')),
-                            streamThumbnail = _streamMediumThumbnail['Url'],
+                            streamThumbnail = _scheduleThumbnails['Url'],
                             streamUrl = "https://youtube.com/watch?v=" + _videoId #_channelUrl + _videoId
                         )
                         # print(_liver.__dict__)
