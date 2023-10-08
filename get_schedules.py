@@ -22,6 +22,9 @@ class Liver:
     def __str__(self):
         return self.name + " - " + self.headIcon + " - " + self.title + " - " + self.scheduleTime + " - " + self.streamThumbnail + " - " + self.streamUrl
 
+    def __repr__(self):
+        return self.name
+
 
 path = os.getcwd()
 imgFileName = path + "/schedules.jpg"
@@ -43,12 +46,12 @@ def fun_get():
     response = requests.get(url = reqUrl, params = reqParams, headers = reqHeaders)
     global _liver_list, _live_list_text_size
     if response.status_code == 200:
-        _array = json.loads(response.text)
-        for _obj in _array: 
-            _headIconJson = json.loads(json.dumps(_obj['StreamerThumbnails']))
-            _scheduleArray = json.loads(json.dumps(_obj['Schedule']))
-            _channelUrl = json.loads(json.dumps(_obj['ChannelUrl']))
-            for _schedule in _scheduleArray:
+        array = json.loads(response.text)
+        for _obj in array:
+            head_icon_json = json.loads(json.dumps(_obj['StreamerThumbnails']))
+            schedule_array = json.loads(json.dumps(_obj['Schedule']))
+            channel_url = json.loads(json.dumps(_obj['ChannelUrl']))
+            for _schedule in schedule_array:
                 if 'ScheduledStartTime' in _schedule:
                     _videoId = json.loads(json.dumps(_schedule['VideoId']))
                     _scheduleThumbnails = json.loads(json.dumps(_schedule['ThumbnailDetails']))
@@ -58,54 +61,55 @@ def fun_get():
                     if schedule_datetime == now_datetime:
                         _liver = Liver(
                             name = str(_obj['StreamerName']).replace('【NIJISANJI EN】',''),
-                            head_icon= _headIconJson['Url'],
+                            head_icon= head_icon_json['Url'],
                             title = _schedule['Title'],
                             schedule_time= str(_schedule['ScheduledStartTime'].strftime('%H:%M')),
                             stream_thumbnail= _scheduleThumbnails['Url'],
-                            stream_url="https://youtube.com/watch?v=" + _videoId #_channelUrl + _videoId
+                            stream_url="https://youtube.com/watch?v=" + _videoId #channel_url + _videoId
                         )
                         # print(_liver.__dict__)
                         _liver_list.append(_liver)
-
                         _live_list_text_size = _live_list_text_size + 4 + len(_liver.name) + 8 + len(_liver.headIcon) + 5 + len(_liver.title) + 12 + len(_liver.scheduleTime) + 15 + len(_liver.streamThumbnail)
-
                         _liver_list.sort(key = fun_take_second)
-
     else:
         print(response.text)
     return _liver_list
 
-def fun_save_to_jpg(margin = 15, backgroundRGB = [255, 255, 255], fontType = _fontType, fontRGB = [0, 0, 0]):
-
-    textList, maxSingleText, allText = fun_decode_text()
+def fun_save_to_jpg(margin = 15, background_rgb=None, font_type=None, font_rgb=None):
+    if background_rgb is None:
+        background_rgb = [255, 255, 255]
+    if font_rgb is None:
+        font_rgb = [0, 0, 0]
+    if font_type is None:
+        font_type = _fontType
+    text_list, _, all_text = fun_decode_text()
     # print(maxSingleText)
     size = tuple([1080, len(_liver_list) * 85])
-    backgroundRGB = tuple(backgroundRGB)
-    fontRGB = tuple(fontRGB)
+    background_rgb = tuple(background_rgb)
+    font_rgb = tuple(font_rgb)
 
-    image = Image.new('RGB', size, backgroundRGB) # 设置画布大小及背景色
+    image = Image.new('RGB', size, background_rgb) # 设置画布大小及背景色
     iwidth, iheight = image.size # 获取画布高宽
 
     # 计算字节数，GBK编码下汉字双字，英文单字。都转为双字计算
-    size = len(maxSingleText.encode('utf-8'))/3
+    # size = len(maxSingleText.encode('utf-8'))/3
     # 计算字体大小，每两个字号按字节长度翻倍。
-    fontSize = 30#math.ceil((iwidth-(margin*2))/size)
-    # print(fontSize)
+    font_size = 30#math.ceil((iwidth-(margin*2))/size)
+    # print(font_size)
     
-    font = ImageFont.truetype(fontType, fontSize) # 设置字体及字号
+    font = ImageFont.truetype(font_type, font_size) # 设置字体及字号
     draw = ImageDraw.Draw(image)
-    
-    fwidth, fheight = draw.textsize(allText, font) # 获取文字高宽
-    owidth, oheight = font.getoffset(allText)
 
-    fontx = (iwidth - fwidth - owidth) / 2
-    # fonty = (iheight - fheight - oheight) / 4
-    fonty = fontSize + margin * 2
+    # 获取文字高宽
+    fbox = draw.multiline_textbbox(text=all_text, font=font, xy = tuple([0.0,0.0]))
+    fwidth, fheight = fbox[2], fbox[3]
+    fontx = (iwidth - fwidth) / 2
+    fonty = font_size + margin * 2
 
-    draw.text((iwidth / 3, margin), str(datetime.datetime.today().strftime('%Y - %m - %d')) + " - 今天直播人数 : " + str(len(_liver_list)), fontRGB, font)
-    for tmpText in textList:
-        draw.text((fontx, fonty), tmpText, fontRGB, font)
-        fonty += fontSize * 2 + margin
+    draw.text((iwidth / 3, margin), str(datetime.datetime.today().strftime('%Y - %m - %d')) + " - 今天直播人数 : " + str(len(_liver_list)), font_rgb, font)
+    for tmpText in text_list:
+        draw.text((fontx, fonty), tmpText, font_rgb, font)
+        fonty += font_size * 2 + margin
         # print(tmpText)
         
     image.save(imgFileName) # 保存图片        
@@ -114,7 +118,7 @@ def fun_decode_text():
     text_list = []
     max_single_text = ""
     all_text = ""
-    _liver_list.sort(key=fun_take_second)
+    _liver_list.sort(key = fun_take_second)
     for _liver in _liver_list:
         # print(_liver.__dict__)
         tmp_text = _liver.scheduleTime + " " + _liver.name + "\n      " + _liver.title + "\n"
